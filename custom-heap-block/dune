@@ -1,0 +1,5 @@
+(executable
+ (name mywrap)
+ (foreign_stubs
+  (language c)
+  (names mywrap)))

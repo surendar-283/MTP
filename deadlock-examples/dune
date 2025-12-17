@@ -1,0 +1,11 @@
+(executable
+ (name deadlock_1)
+ (libraries domainslib))
+
+(executable
+ (name deadlock_2)
+ (libraries domainslib))
+
+(executable
+ (name deadlock_3)
+ (libraries unix domainslib))
