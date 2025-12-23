@@ -1,24 +1,31 @@
-open Domainslib
+open Eio.Std
+
+type resolver_box = {
+  _u : unit Promise.u;
+}
 
 let () =
-  let pool = Task.setup_pool ~num_domains:1 () in
-  Task.run pool (fun _ ->
-      let _ =
-        Task.async pool (fun _ ->
-            let r = ref None in
-            let t =
-              Task.async pool (fun _ ->
-                  Printf.printf "waiting forever!\n%!";
-                  match !r with
-                  | None -> Printf.printf "No task to wait on!\n%!"
-                  | Some t -> ignore (Task.await pool t))
-            in
-            Gc.finalise_last (fun _ -> Printf.printf "Finalizing...\n%!") t;
-            r := Some t;
-            ignore (Task.await pool t))
-      in
+  Eio_main.run @@ fun _env ->
+    Switch.run @@ fun sw ->
+
+      Fiber.fork ~sw (fun () ->
+        traceln "Fiber: creating promise";
+
+        let promise, u = Promise.create () in
+
+        let box = { _u = u } in
+
+        Gc.finalise_last
+          (fun _ ->
+             traceln "Finalizer: resolver capability unreachable")
+          box;
+
+        traceln "Fiber: awaiting promise (will deadlock)";
+        Promise.await promise
+      );
+
+      traceln "Main fiber: nothing else to do";
+
       Gc.full_major ();
       Unix.sleep 1;
-      Gc.full_major ());
-
-  Task.teardown_pool pool
+      Gc.full_major ()
