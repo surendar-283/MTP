@@ -9,5 +9,6 @@ let () =
     Printf.printf "Task started, awaiting promise...\n%!";
     Fut.await fut
   ) in
+  
   Thread.delay 0.2;
   Gc.full_major ()
