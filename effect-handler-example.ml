@@ -1,7 +1,6 @@
 open Effect
 open Effect.Deep
 
-(* Define the effect *)
 type _ Effect.t += E : string Effect.t
 
 let comp () =
